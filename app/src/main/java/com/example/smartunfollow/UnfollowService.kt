@@ -15,8 +15,8 @@ class UnfollowService : AccessibilityService() {
         @Volatile var skipped = 0
         @Volatile var maxActions = 50
         @Volatile var statusText = "Idle"
-        var minDelayMs = 1000L
-        var maxDelayMs = 2500L
+        var minDelayMs = 1500L
+var maxDelayMs = 3500L
     }
 
     private val tiktokPackages = setOf("com.zhiliaoapp.musically", "com.ss.android.ugc.trill")
@@ -139,14 +139,7 @@ class UnfollowService : AccessibilityService() {
     }
 
     private suspend fun humanDelay() {
-        delay(Random.nextLong(minDelayMs, maxDelayMs + 1))
-        actionCount++
-        if (actionCount >= nextLongBreakAt) {
-            statusText = "Lamba break"
-            delay(Random.nextLong(5000L, 10001L))
-            actionCount = 0
-            nextLongBreakAt = Random.nextInt(10, 16)
-        }
+    delay(Random.nextLong(minDelayMs, maxDelayMs + 1))
     }
 
     override fun onAccessibilityEvent(event: AccessibilityEvent?) {}
