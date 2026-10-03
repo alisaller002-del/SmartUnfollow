@@ -3,7 +3,7 @@
 
     <application
         android:allowBackup="false"
-        android:label="Smart Unfollow"
+        android:label="Ali Trusted Saller"
         android:theme="@style/Theme.AppCompat.Light.NoActionBar">
 
         <activity
