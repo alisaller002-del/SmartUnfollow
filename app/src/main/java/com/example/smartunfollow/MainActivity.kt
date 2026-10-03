@@ -19,6 +19,7 @@ class MainActivity : AppCompatActivity() {
     private lateinit var tvUnf: TextView
     private lateinit var tvSkip: TextView
     private lateinit var tvSpeed: TextView
+    private lateinit var tvScroll: TextView
 
     private fun dp(v: Int) = (v * resources.displayMetrics.density).toInt()
 
@@ -48,6 +49,22 @@ class MainActivity : AppCompatActivity() {
         ).apply { topMargin = dp(14) }
     }
 
+    private fun label(t: String) = TextView(this).apply {
+        text = t
+        textSize = 13f
+        setTextColor(Color.parseColor("#8FA3B8"))
+        setPadding(0, dp(10), 0, 0)
+    }
+
+    private fun presetButton(label: String, onClick: () -> Unit) = Button(this).apply {
+        text = label
+        setTextColor(Color.WHITE)
+        background = bg("#2A3B4F", 12)
+        layoutParams = LinearLayout.LayoutParams(0, dp(46), 1f)
+            .apply { marginEnd = dp(4); marginStart = dp(4); topMargin = dp(6) }
+        setOnClickListener { onClick() }
+    }
+
     private val refresh = object : Runnable {
         override fun run() {
             tvStatus.text = UnfollowService.statusText +
@@ -61,7 +78,14 @@ class MainActivity : AppCompatActivity() {
     private fun setSpeed(name: String, min: Long, max: Long) {
         UnfollowService.minDelayMs = min
         UnfollowService.maxDelayMs = max
-        tvSpeed.text = "Speed: $name"
+        tvSpeed.text = "Unfollow speed: $name"
+    }
+
+    private fun setScrollSpeed(name: String, dMin: Long, dMax: Long, swipe: Long) {
+        UnfollowService.scrollDelayMin = dMin
+        UnfollowService.scrollDelayMax = dMax
+        UnfollowService.swipeMs = swipe
+        tvScroll.text = "Scroll speed: $name"
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -132,38 +156,40 @@ class MainActivity : AppCompatActivity() {
         root.addView(row)
 
         val c2 = card()
-        c2.addView(TextView(this).apply {
-            text = "Max unfollow is session mein"
-            textSize = 13f
-            setTextColor(Color.parseColor("#8FA3B8"))
-        })
+        c2.addView(label("Max unfollow is session mein"))
         val limit = EditText(this).apply {
             setText("50")
             setTextColor(Color.WHITE)
             inputType = android.text.InputType.TYPE_CLASS_NUMBER
         }
         c2.addView(limit)
-        tvSpeed = TextView(this).apply {
-            text = "Speed: Normal"
-            textSize = 13f
-            setTextColor(Color.parseColor("#8FA3B8"))
-            setPadding(0, dp(10), 0, 0)
-        }
+
+        tvSpeed = label("Unfollow speed: Fast")
         c2.addView(tvSpeed)
         val speedRow = LinearLayout(this).apply { orientation = LinearLayout.HORIZONTAL }
-        fun sp(label: String, min: Long, max: Long) = Button(this).apply {
-            text = label
-            setTextColor(Color.WHITE)
-            background = bg("#2A3B4F", 12)
-            layoutParams = LinearLayout.LayoutParams(0, dp(46), 1f)
-                .apply { marginEnd = dp(4); marginStart = dp(4); topMargin = dp(6) }
-            setOnClickListener { setSpeed(label, min, max) }
-        }
-        speedRow.addView(sp("Slow", 600L, 1000L))
-        speedRow.addView(sp("Normal", 300L, 500L))
-        speedRow.addView(sp("Fast", 200L, 300L))
+        speedRow.addView(presetButton("Slow") { setSpeed("Slow", 600L, 1000L) })
+        speedRow.addView(presetButton("Normal") { setSpeed("Normal", 300L, 500L) })
+        speedRow.addView(presetButton("Fast") { setSpeed("Fast", 200L, 300L) })
         c2.addView(speedRow)
         root.addView(c2)
+
+        val c3 = card()
+        val sw = Switch(this).apply {
+            text = "Auto Scroll"
+            textSize = 16f
+            setTextColor(Color.WHITE)
+            isChecked = true
+            setOnCheckedChangeListener { _, on -> UnfollowService.autoScroll = on }
+        }
+        c3.addView(sw)
+        tvScroll = label("Scroll speed: Normal")
+        c3.addView(tvScroll)
+        val scrollRow = LinearLayout(this).apply { orientation = LinearLayout.HORIZONTAL }
+        scrollRow.addView(presetButton("Slow") { setScrollSpeed("Slow", 1200L, 1800L, 450L) })
+        scrollRow.addView(presetButton("Normal") { setScrollSpeed("Normal", 600L, 900L, 300L) })
+        scrollRow.addView(presetButton("Fast") { setScrollSpeed("Fast", 250L, 400L, 200L) })
+        c3.addView(scrollRow)
+        root.addView(c3)
 
         root.addView(btn("START", "#2E7D32") {
             UnfollowService.maxActions = limit.text.toString().toIntOrNull() ?: 50
