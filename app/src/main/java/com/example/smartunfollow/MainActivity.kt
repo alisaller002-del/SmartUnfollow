@@ -2,6 +2,7 @@ package com.example.smartunfollow
 
 import android.content.Intent
 import android.graphics.Color
+import android.graphics.Typeface
 import android.graphics.drawable.GradientDrawable
 import android.os.Bundle
 import android.os.Handler
@@ -72,20 +73,29 @@ class MainActivity : AppCompatActivity() {
             setPadding(dp(18), dp(40), dp(18), dp(24))
         }
 
-        root.addView(TextView(this).apply {
-            text = "ALI TRUSTED SALLER"
-            textSize = 22f
-            setTextColor(Color.WHITE)
-            gravity = Gravity.CENTER
+        root.addView(ImageView(this).apply {
+            setImageResource(R.drawable.ic_logo)
+            layoutParams = LinearLayout.LayoutParams(dp(90), dp(90)).apply {
+                gravity = Gravity.CENTER_HORIZONTAL
+            }
         })
         root.addView(TextView(this).apply {
-            text = "Smart Unfollow • Friends safe"
-            textSize = 13f
+            text = "ALI TRUSTED SALLER"
+            textSize = 24f
+            typeface = Typeface.create("sans-serif-medium", Typeface.BOLD)
+            letterSpacing = 0.1f
+            setTextColor(Color.WHITE)
+            setShadowLayer(24f, 0f, 0f, Color.parseColor("#4FC3F7"))
+            gravity = Gravity.CENTER
+            setPadding(0, dp(10), 0, 0)
+        })
+        root.addView(TextView(this).apply {
+            text = "03467314519  •  Friends safe"
+            textSize = 14f
             setTextColor(Color.parseColor("#4FC3F7"))
             gravity = Gravity.CENTER
         })
 
-        // Status card
         val c1 = card()
         c1.addView(TextView(this).apply {
             text = "STATUS"
@@ -99,7 +109,6 @@ class MainActivity : AppCompatActivity() {
         c1.addView(tvStatus)
         root.addView(c1)
 
-        // Counters
         val row = LinearLayout(this).apply {
             orientation = LinearLayout.HORIZONTAL
             layoutParams = LinearLayout.LayoutParams(
@@ -122,7 +131,6 @@ class MainActivity : AppCompatActivity() {
         row.addView(tvSkip)
         root.addView(row)
 
-        // Settings card
         val c2 = card()
         c2.addView(TextView(this).apply {
             text = "Max unfollow is session mein"
@@ -151,9 +159,9 @@ class MainActivity : AppCompatActivity() {
                 .apply { marginEnd = dp(4); marginStart = dp(4); topMargin = dp(6) }
             setOnClickListener { setSpeed(label, min, max) }
         }
-        speedRow.addView(sp("Slow", 2500L, 5000L))
-        speedRow.addView(sp("Normal", 1500L, 3500L))
-        speedRow.addView(sp("Fast", 1000L, 2000L))
+        speedRow.addView(sp("Slow", 900L, 1500L))
+        speedRow.addView(sp("Normal", 500L, 900L))
+        speedRow.addView(sp("Fast", 300L, 600L))
         c2.addView(speedRow)
         root.addView(c2)
 
