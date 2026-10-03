@@ -15,14 +15,12 @@ class UnfollowService : AccessibilityService() {
         @Volatile var skipped = 0
         @Volatile var maxActions = 50
         @Volatile var statusText = "Idle"
-        var minDelayMs = 1500L
-var maxDelayMs = 3500L
+        @Volatile var minDelayMs = 220L
+        @Volatile var maxDelayMs = 340L
     }
 
     private val tiktokPackages = setOf("com.zhiliaoapp.musically", "com.ss.android.ugc.trill")
     private val scope = CoroutineScope(Dispatchers.Main + SupervisorJob())
-    private var actionCount = 0
-    private var nextLongBreakAt = Random.nextInt(10, 16)
     private val seenFriends = HashSet<String>()
     private var noScrollCount = 0
 
@@ -32,14 +30,14 @@ var maxDelayMs = 3500L
         scope.launch {
             while (isActive) {
                 if (!running) {
-                    delay(500)
+                    delay(300)
                     continue
                 }
                 try {
                     step()
                 } catch (e: Exception) {
                     statusText = "Error: " + e.message
-                    delay(1500)
+                    delay(1000)
                 }
             }
         }
@@ -49,13 +47,7 @@ var maxDelayMs = 3500L
         val root = rootInActiveWindow
         if (root == null || root.packageName?.toString() !in tiktokPackages) {
             statusText = "TikTok Following list kholo"
-            delay(1000)
-            return
-        }
-
-        if (unfollowed >= maxActions) {
-            running = false
-            statusText = "Limit poori ho gayi"
+            delay(800)
             return
         }
 
@@ -63,31 +55,33 @@ var maxDelayMs = 3500L
         val friends = ArrayList<AccessibilityNodeInfo>()
         collect(root, follows, friends)
 
-        // Friends: sirf gino, kabhi click nahi
         for (f in friends) {
             val r = Rect()
             f.getBoundsInScreen(r)
             if (seenFriends.add(r.toShortString())) skipped++
         }
 
-        // Sirf exact "Following" text par action
-        val target = follows.firstOrNull()
-        if (target != null) {
-            val clickable = clickableParent(target)
-            if (clickable != null) {
-                statusText = "FOLLOWING mila: unfollow"
-                clickable.performAction(AccessibilityNodeInfo.ACTION_CLICK)
-                unfollowed++
-                noScrollCount = 0
-                humanDelay()
+        var clicked = 0
+        for (target in follows) {
+            if (!running) return
+            if (unfollowed >= maxActions) {
+                running = false
+                statusText = "Limit poori ho gayi"
                 return
             }
-            statusText = "Button unclear: skip"
-        } else {
-            statusText = if (friends.isNotEmpty()) "FRIENDS: skip" else "Kuch nahi mila"
+            val clickable = clickableParent(target) ?: continue
+            if (clickable.performAction(AccessibilityNodeInfo.ACTION_CLICK)) {
+                unfollowed++
+                clicked++
+                statusText = "Unfollowing..."
+                delay(Random.nextLong(minDelayMs, maxDelayMs + 1))
+            }
         }
 
-        // Is screen par kaam khatam: scroll
+        if (clicked > 0) noScrollCount = 0
+        if (!running) return
+
+        statusText = if (clicked == 0 && friends.isNotEmpty()) "FRIENDS: skip" else "Scroll"
         val scrollable = findScrollable(root)
         val ok = scrollable?.performAction(AccessibilityNodeInfo.ACTION_SCROLL_FORWARD) ?: false
         seenFriends.clear()
@@ -100,7 +94,7 @@ var maxDelayMs = 3500L
                 statusText = "List khatam"
             }
         }
-        delay(Random.nextLong(1200L, 2200L))
+        delay(Random.nextLong(500L, 800L))
     }
 
     private fun collect(
@@ -136,10 +130,6 @@ var maxDelayMs = 3500L
             if (r != null) return r
         }
         return null
-    }
-
-    private suspend fun humanDelay() {
-    delay(Random.nextLong(minDelayMs, maxDelayMs + 1))
     }
 
     override fun onAccessibilityEvent(event: AccessibilityEvent?) {}
