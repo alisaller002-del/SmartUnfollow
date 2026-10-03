@@ -159,9 +159,9 @@ class MainActivity : AppCompatActivity() {
                 .apply { marginEnd = dp(4); marginStart = dp(4); topMargin = dp(6) }
             setOnClickListener { setSpeed(label, min, max) }
         }
-        speedRow.addView(sp("Slow", 900L, 1500L))
-        speedRow.addView(sp("Normal", 500L, 900L))
-        speedRow.addView(sp("Fast", 300L, 600L))
+        speedRow.addView(sp("Slow", 600L, 1000L))
+        speedRow.addView(sp("Normal", 300L, 500L))
+        speedRow.addView(sp("Fast", 200L, 300L))
         c2.addView(speedRow)
         root.addView(c2)
 
