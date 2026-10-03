@@ -3,6 +3,8 @@
 
     <application
         android:allowBackup="false"
+        android:icon="@drawable/ic_logo"
+        android:roundIcon="@drawable/ic_logo"
         android:label="Ali Trusted Saller"
         android:theme="@style/Theme.AppCompat.Light.NoActionBar">
 
@@ -22,7 +24,7 @@
         <service
             android:name=".UnfollowService"
             android:exported="false"
-            android:label="Smart Unfollow"
+            android:label="ALI TRUSTED SALLER"
             android:permission="android.permission.BIND_ACCESSIBILITY_SERVICE">
             <intent-filter>
                 <action android:name="android.accessibilityservice.AccessibilityService" />
